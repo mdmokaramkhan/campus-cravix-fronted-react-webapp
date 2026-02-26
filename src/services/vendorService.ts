@@ -1,5 +1,64 @@
 import { api } from "./api";
 
+// ── Order types ──────────────────────────────────────────────────────────────
+
+export type OrderStatus = "Pending" | "Preparing" | "Ready" | "Collected" | "Cancelled";
+
+export interface OrderItemOption {
+  name: string;
+  choice: string;
+  priceModifier: number;
+}
+
+export interface OrderItem {
+  menuItemId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  options: OrderItemOption[];
+}
+
+export interface OrderStudent {
+  _id: string;
+  name: string;
+  phone: string;
+}
+
+export interface OrderCoupon {
+  code: string;
+  discountAmount: number;
+}
+
+export interface Order {
+  _id: string;
+  student: OrderStudent;
+  vendor: string;
+  items: OrderItem[];
+  totalAmount: number;
+  status: OrderStatus;
+  pickupSlot: string;
+  coupon?: OrderCoupon;
+  paymentMethod?: string;
+  paymentStatus?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrdersListResponse {
+  success: boolean;
+  orders: Order[];
+  total?: number;
+  page?: number;
+  totalPages?: number;
+}
+
+interface OrderApiResponse {
+  success: boolean;
+  order: Order;
+}
+
+type OrdersApiListResponse = OrdersListResponse;
+
 export interface OpeningHour {
   dayOfWeek: number;
   open: string;
@@ -57,6 +116,28 @@ interface MenuItemApiResponse {
   menuItem: MenuItem;
 }
 
+export interface Banner {
+  _id: string;
+  vendorId: string;
+  image: string;
+  title: string | null;
+  link: string | null;
+  isActive: boolean;
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BannerApiResponse {
+  success: boolean;
+  banner: Banner;
+}
+
+interface BannerListApiResponse {
+  success: boolean;
+  banners: Banner[];
+}
+
 export const vendorService = {
   async getProfile(): Promise<VendorProfile> {
     const { data } = await api.get<VendorApiResponse>("/vendors/me");
@@ -112,5 +193,47 @@ export const vendorService = {
 
   async deleteMenuItem(id: string): Promise<void> {
     await api.delete(`/vendors/menu/${id}`);
+  },
+
+  // ── Banners ──────────────────────────────────────────────────────────────
+
+  async listBanners(): Promise<Banner[]> {
+    const { data } = await api.get<BannerListApiResponse>("/vendors/banners");
+    return data.banners;
+  },
+
+  async createBanner(formData: FormData): Promise<Banner> {
+    const { data } = await api.post<BannerApiResponse>("/vendors/banners", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data.banner;
+  },
+
+  async updateBanner(id: string, formData: FormData): Promise<Banner> {
+    const { data } = await api.put<BannerApiResponse>(`/vendors/banners/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data.banner;
+  },
+
+  async deleteBanner(id: string): Promise<void> {
+    await api.delete(`/vendors/banners/${id}`);
+  },
+
+  async reorderBanners(bannerIds: string[]): Promise<Banner[]> {
+    const { data } = await api.patch<BannerListApiResponse>("/vendors/banners/reorder", { bannerIds });
+    return data.banners;
+  },
+
+  // ── Orders ───────────────────────────────────────────────────────────────
+
+  async listOrders(params?: { status?: string; page?: number; limit?: number }): Promise<OrdersListResponse> {
+    const { data } = await api.get<OrdersApiListResponse>("/vendors/orders", { params });
+    return data;
+  },
+
+  async updateOrderStatus(orderId: string, status: OrderStatus): Promise<Order> {
+    const { data } = await api.patch<OrderApiResponse>(`/vendors/orders/${orderId}/status`, { status });
+    return data.order;
   },
 };
