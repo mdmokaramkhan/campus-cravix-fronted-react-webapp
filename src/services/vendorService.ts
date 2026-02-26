@@ -138,6 +138,88 @@ interface BannerListApiResponse {
   banners: Banner[];
 }
 
+export type CouponDiscountType = "PERCENT" | "FLAT";
+
+export interface Coupon {
+  _id: string;
+  vendorId: string;
+  code: string;
+  discountType: CouponDiscountType;
+  discountValue: number;
+  minOrderAmount: number;
+  expiryDate: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCouponParams {
+  code: string;
+  discountType: CouponDiscountType;
+  discountValue: number;
+  minOrderAmount?: number;
+  expiryDate: string;
+}
+
+export interface UpdateCouponParams {
+  code?: string;
+  discountType?: CouponDiscountType;
+  discountValue?: number;
+  minOrderAmount?: number;
+  expiryDate?: string;
+  isActive?: boolean;
+}
+
+interface CouponApiResponse {
+  success: boolean;
+  coupon: Coupon;
+}
+
+interface CouponListApiResponse {
+  success: boolean;
+  coupons: Coupon[];
+}
+
+// ── Review types ──────────────────────────────────────────────────────────────
+
+export interface ReviewStudent {
+  _id: string;
+  name: string;
+  phone: string;
+}
+
+export interface ReviewOrder {
+  _id: string;
+  items: { name: string; quantity: number }[];
+  totalAmount: number;
+  createdAt: string;
+}
+
+export interface Review {
+  _id: string;
+  orderId: ReviewOrder;
+  studentId: ReviewStudent;
+  vendorId: string;
+  rating: number;
+  comment: string;
+  images: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RatingSummary {
+  averageRating: number;
+  totalCount: number;
+  breakdown: Record<string, number>;
+}
+
+export interface ReviewsListResponse {
+  success: boolean;
+  reviews: Review[];
+  total: number;
+  ratingSummary: RatingSummary;
+}
+
 export const vendorService = {
   async getProfile(): Promise<VendorProfile> {
     const { data } = await api.get<VendorApiResponse>("/vendors/me");
@@ -225,6 +307,32 @@ export const vendorService = {
     return data.banners;
   },
 
+  // ── Coupons ──────────────────────────────────────────────────────────────
+
+  async listCoupons(): Promise<Coupon[]> {
+    const { data } = await api.get<CouponListApiResponse>("/vendors/coupons");
+    return data.coupons;
+  },
+
+  async createCoupon(params: CreateCouponParams): Promise<Coupon> {
+    const { data } = await api.post<CouponApiResponse>("/vendors/coupons", params);
+    return data.coupon;
+  },
+
+  async updateCoupon(id: string, params: UpdateCouponParams): Promise<Coupon> {
+    const { data } = await api.put<CouponApiResponse>(`/vendors/coupons/${id}`, params);
+    return data.coupon;
+  },
+
+  async deactivateCoupon(id: string): Promise<Coupon> {
+    const { data } = await api.patch<CouponApiResponse>(`/vendors/coupons/${id}/deactivate`);
+    return data.coupon;
+  },
+
+  async deleteCoupon(id: string): Promise<void> {
+    await api.delete(`/vendors/coupons/${id}`);
+  },
+
   // ── Orders ───────────────────────────────────────────────────────────────
 
   async listOrders(params?: { status?: string; page?: number; limit?: number }): Promise<OrdersListResponse> {
@@ -235,5 +343,12 @@ export const vendorService = {
   async updateOrderStatus(orderId: string, status: OrderStatus): Promise<Order> {
     const { data } = await api.patch<OrderApiResponse>(`/vendors/orders/${orderId}/status`, { status });
     return data.order;
+  },
+
+  // ── Reviews ──────────────────────────────────────────────────────────────
+
+  async listReviews(params?: { limit?: number; skip?: number }): Promise<ReviewsListResponse> {
+    const { data } = await api.get<ReviewsListResponse>("/vendors/reviews", { params });
+    return data;
   },
 };

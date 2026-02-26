@@ -11,7 +11,6 @@ import {
   Tag,
   User,
   UtensilsCrossed,
-  X,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { logout } from "@/store/slices/authSlice";
@@ -93,7 +92,11 @@ function SidebarNav({
       {/* User + logout */}
       {user && (
         <div className="shrink-0 px-3 py-3">
-          <div className="mb-1 flex items-center gap-3 rounded-lg px-3 py-2">
+          <NavLink
+            to="/vendor/profile"
+            onClick={onNavClick}
+            className="mb-1 flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          >
             <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
               {initials(user.name)}
             </div>
@@ -101,7 +104,7 @@ function SidebarNav({
               <p className="truncate text-sm font-semibold text-sidebar-foreground">{user.name}</p>
               <p className="text-[11px] text-muted-foreground">Vendor account</p>
             </div>
-          </div>
+          </NavLink>
           <button
             type="button"
             onClick={handleLogout}
