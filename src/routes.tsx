@@ -3,6 +3,11 @@ import HomePage from "@/pages/HomePage";
 import LoginPage from "@/pages/auth/LoginPage";
 import VendorDashboardLayout from "@/pages/vendor/VendorDashboardLayout";
 import VendorProfilePage from "@/pages/vendor/VendorProfilePage";
+import VendorMenuPage from "@/pages/vendor/VendorMenuPage";
+import VendorBannersPage from "@/pages/vendor/VendorBannersPage";
+import VendorOrdersPage from "@/pages/vendor/VendorOrdersPage";
+import VendorCouponsPage from "@/pages/vendor/VendorCouponsPage";
+import VendorReviewsPage from "@/pages/vendor/VendorReviewsPage";
 import StudentLayout from "@/pages/student/StudentLayout";
 import StudentDiscoveryPage from "@/pages/student/StudentDiscoveryPage";
 import NotFoundPage from "@/pages/NotFoundPage";
@@ -27,6 +32,11 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <VendorProfilePage /> },
       { path: "profile", element: <VendorProfilePage /> },
+      { path: "menu", element: <VendorMenuPage /> },
+      { path: "banners", element: <VendorBannersPage /> },
+      { path: "orders", element: <VendorOrdersPage /> },
+      { path: "coupons", element: <VendorCouponsPage /> },
+      { path: "reviews", element: <VendorReviewsPage /> },
     ],
   },
   {
